@@ -39,6 +39,9 @@ export class HaSortable extends LitElement {
   @property({ type: String, attribute: "group" })
   public group?: string;
 
+  @property({ type: Boolean })
+  public rollback: boolean = true;
+
   protected updated(changedProperties: PropertyValues<this>) {
     if (changedProperties.has("disabled")) {
       if (this.disabled) {
@@ -132,7 +135,7 @@ export class HaSortable extends LitElement {
 
   private _handleEnd = async (evt: SortableEvent) => {
     // put back in original location
-    if ((evt.item as any).placeholder) {
+    if (this.rollback && (evt.item as any).placeholder) {
       (evt.item as any).placeholder.replaceWith(evt.item);
       delete (evt.item as any).placeholder;
     }
@@ -159,6 +162,7 @@ export class HaSortable extends LitElement {
   };
 
   private _handleChoose = (evt: SortableEvent) => {
+    if (!this.rollback) return;
     (evt.item as any).placeholder = document.createComment("sort-placeholder");
     evt.item.after((evt.item as any).placeholder);
   };
